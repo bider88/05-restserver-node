@@ -1,3 +1,4 @@
+require('./config')
 const express = require('express');
 const morgan = require('morgan');
 const app = express();
@@ -8,7 +9,7 @@ const bodyParser = require('body-parser');
 
 
 // Settings 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 // Middlewares
 app.use(morgan('dev'));
@@ -23,7 +24,17 @@ app.get('/users', (req, res) => {
 app.post('/users', (req, res) => {
     
     const body = req.body;
-    res.json(body)
+
+    if (body.nombre === undefined) {
+
+        res.status(400).json({
+            ok: false,
+            msg: 'Nombre requerido'
+        });
+
+    } else {
+        res.json(body);
+    }
 })
 
 app.put('/users/:id', (req, res) => {
