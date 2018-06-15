@@ -17,11 +17,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Routes
-app.get('/users', (req, res) => {
+app.get('/user', (req, res) => {
     res.json('get usuarios');
 })
 
-app.post('/users', (req, res) => {
+app.post('/user', (req, res) => {
     
     const body = req.body;
 
@@ -37,7 +37,7 @@ app.post('/users', (req, res) => {
     }
 })
 
-app.put('/users/:id', (req, res) => {
+app.put('/user/:id', (req, res) => {
 
     const id = req.params.id;
 
@@ -46,7 +46,7 @@ app.put('/users/:id', (req, res) => {
     });
 })
 
-app.delete('/users', (req, res) => {
+app.delete('/user', (req, res) => {
     res.json('delete usuarios');
 })
 
