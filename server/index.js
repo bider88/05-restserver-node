@@ -1,12 +1,11 @@
 require('./config')
 const express = require('express');
+const mongoose = require('mongoose');
 const morgan = require('morgan');
+
 const app = express();
 
 const bodyParser = require('body-parser');
-
-// Db connection
-
 
 // Settings 
 const port = process.env.PORT;
@@ -52,6 +51,13 @@ app.delete('/user', (req, res) => {
 
 // Static Files
 
+
+// Db connection
+mongoose.connect('mongodb://localhost:27017/coffee', (err, res) => {
+    if (err) throw new err;
+
+    console.log('Online database');
+});
 
 // Starting the server
 app.listen(port, () => {
