@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const _= require('underscore');
 
 const User = require('../models/user');
-const { verifyToken } = require('../middlewares/authentication')
+const { verifyToken, verifyAdminRole } = require('../middlewares/authentication')
 
 const app = express();
 
@@ -17,8 +17,6 @@ app.get('/user', verifyToken , (req, res) => {
     let limit = req.query.limit || 5;
     limit =  Number(limit);
     limit = isNaN(limit) ? 5 : limit;
-
-    console.log(limit)
 
     User.find({ state :true }, 'name  email role state role img')
         .skip(from)
@@ -42,8 +40,8 @@ app.get('/user', verifyToken , (req, res) => {
 
 })
 
-app.post('/user', (req, res) => {
-    
+app.post('/user', verifyToken, verifyAdminRole, (req, res) => {
+
     const body = req.body;
 
     const user = new User({
@@ -68,7 +66,7 @@ app.post('/user', (req, res) => {
     });
 })
 
-app.put('/user/:id', (req, res) => {
+app.put('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
 
     const id = req.params.id;
 
@@ -92,7 +90,7 @@ app.put('/user/:id', (req, res) => {
     
 })
 
-app.delete('/user/:id', (req, res) => {
+app.delete('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
     
     const id = req.params.id;
 
