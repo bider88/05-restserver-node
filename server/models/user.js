@@ -18,6 +18,13 @@ const userSchema = new Schema({
     google: { type: Boolean, default: false }
 });
 
+userSchema.methods.toJSON = function() {
+    const user = this;
+    let userObject = user.toObject();
+    delete userObject.password;
+    return userObject;
+}
+
 userSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' });
 
 module.exports = mongoose.model('user', userSchema);
