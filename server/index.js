@@ -16,38 +16,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Routes
-app.get('/user', (req, res) => {
-    res.json('get usuarios');
-})
-
-app.post('/user', (req, res) => {
-    
-    const body = req.body;
-
-    if (body.nombre === undefined) {
-
-        res.status(400).json({
-            ok: false,
-            msg: 'Nombre requerido'
-        });
-
-    } else {
-        res.json(body);
-    }
-})
-
-app.put('/user/:id', (req, res) => {
-
-    const id = req.params.id;
-
-    res.json({
-        id
-    });
-})
-
-app.delete('/user', (req, res) => {
-    res.json('delete usuarios');
-})
+app.use(require('./routes'));
 
 // Static Files
 
