@@ -19,7 +19,7 @@ app.get('/user', (req, res) => {
 
     console.log(limit)
 
-    User.find({})
+    User.find({}, 'name  email role state role img')
         .skip(from)
         .limit(limit)
         .exec( (err, users) => {
