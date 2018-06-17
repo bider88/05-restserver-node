@@ -1,8 +1,15 @@
 // Port
 process.env.PORT = process.env.PORT || 3000;
 
-// Entorno
+// Environment
 process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
+
+// Expiration token
+// 60 seconds   60 minutes   24 hours   30 days
+process.env.EXP_TOKEN = 60 * 60 * 24 * 30;
+
+// SEED authentication
+process.env.SEED = process.env.SEED || 'seed-dev';
 
 // Database
 let urlDB;
