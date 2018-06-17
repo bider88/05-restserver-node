@@ -22,7 +22,7 @@ app.use(require('./routes'));
 
 
 // Db connection
-mongoose.connect('mongodb://localhost:27017/coffee', (err, res) => {
+mongoose.connect(process.env.URLDB, (err, res) => {
     if (err) throw new err;
 
     console.log('Online database');
