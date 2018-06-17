@@ -19,7 +19,7 @@ app.get('/user', (req, res) => {
 
     console.log(limit)
 
-    User.find({}, 'name  email role state role img')
+    User.find({ state :true }, 'name  email role state role img')
         .skip(from)
         .limit(limit)
         .exec( (err, users) => {
@@ -30,7 +30,7 @@ app.get('/user', (req, res) => {
                 })
             }
 
-            User.count({}, (err, count) => {
+            User.count({ state :true }, (err, count) => {
                 res.json({
                     ok: true,
                     count,
@@ -73,7 +73,7 @@ app.put('/user/:id', (req, res) => {
 
     const body = _.pick(req.body, ['name', 'email', 'img', 'role', 'state']);
 
-    User.findByIdAndUpdate( id, body, {new: true, runValidators: true }, (err, userDB) => {
+    User.findByIdAndUpdate( id, body, { new: true, runValidators: true }, (err, userDB) => {
 
         if (err) {
             return res.status(400).json({
@@ -95,7 +95,10 @@ app.delete('/user/:id', (req, res) => {
     
     const id = req.params.id;
 
-    User.findByIdAndRemove(id, (err, userDeleted) => {
+    const changeState = { state: false };
+
+    User.findByIdAndUpdate( id, changeState, { new: true }, (err, userDB) => {
+
         if (err) {
             return res.status(400).json({
                 ok: false,
@@ -103,20 +106,34 @@ app.delete('/user/:id', (req, res) => {
             })
         }
 
-        if ( !userDeleted ) {
-            return res.status(400).json({
-                ok: false,
-                err: {
-                    message: 'Usuario no encontrado'
-                }
-            })
-        }
-
         res.json({
             ok: true,
-            user: userDeleted
-        })
+            user: userDB
+        });
     })
+
+    // User.findByIdAndRemove(id, (err, userDeleted) => {
+    //     if (err) {
+    //         return res.status(400).json({
+    //             ok: false,
+    //             err
+    //         })
+    //     }
+
+    //     if ( !userDeleted ) {
+    //         return res.status(400).json({
+    //             ok: false,
+    //             err: {
+    //                 message: 'Usuario no encontrado'
+    //             }
+    //         })
+    //     }
+
+    //     res.json({
+    //         ok: true,
+    //         user: userDeleted
+    //     })
+    // })
 
 })
 
