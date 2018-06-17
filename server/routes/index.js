@@ -30,10 +30,13 @@ app.get('/user', (req, res) => {
                 })
             }
 
-            res.json({
-                ok: true,
-                users
-            })
+            User.count({}, (err, count) => {
+                res.json({
+                    ok: true,
+                    count,
+                    users
+                })
+            });
         })
 
 })
