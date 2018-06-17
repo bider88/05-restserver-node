@@ -11,9 +11,13 @@ app.get('/user', (req, res) => {
 
     let from = req.query.from || 0;
     from =  Number(from);
+    from = isNaN(from) ? 0 : from;
 
     let limit = req.query.limit || 5;
     limit =  Number(limit);
+    limit = isNaN(limit) ? 5 : limit;
+
+    console.log(limit)
 
     User.find({})
         .skip(from)
