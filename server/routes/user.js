@@ -4,10 +4,11 @@ const bcrypt = require('bcrypt');
 const _= require('underscore');
 
 const User = require('../models/user');
+const { verifyToken } = require('../middlewares/authentication')
 
 const app = express();
 
-app.get('/user', (req, res) => {
+app.get('/user', verifyToken , (req, res) => {
 
     let from = req.query.from || 0;
     from =  Number(from);
