@@ -14,6 +14,8 @@ router.all('/category*', verifyToken);
 router.get('/category', (req, res) => {
     
     Category.find({})
+        .sort('name')
+        .populate('user', 'name email')
         .exec((err, categoriesDB) => {
             if (err) {
                 return handleError(res, 500, err);
