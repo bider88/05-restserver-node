@@ -1,11 +1,16 @@
 require('./config')
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path')
+
 const morgan = require('morgan');
 
 const app = express();
 
 const bodyParser = require('body-parser');
+
+// enable public folder
+app.use( express.static( path.resolve( __dirname, '../public' ) ) );
 
 // Settings 
 const port = process.env.PORT;
