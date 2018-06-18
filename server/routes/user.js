@@ -3,12 +3,13 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const _= require('underscore');
 
+const { handleError } = require('../utils/errors');
 const User = require('../models/user');
-const { verifyToken, verifyAdminRole } = require('../middlewares/authentication')
+const { verifyToken, verifyAdminRole } = require('../middlewares/authentication');
 
-const app = express();
+const router = express.Router();
 
-app.get('/user', verifyToken , (req, res) => {
+router.get('/user', verifyToken , (req, res) => {
 
     let from = req.query.from || 0;
     from =  Number(from);
@@ -23,13 +24,15 @@ app.get('/user', verifyToken , (req, res) => {
         .limit(limit)
         .exec( (err, users) => {
             if (err) {
-                return res.status(400).json({
-                    ok: false,
-                    err
-                })
+                return handleError(res, 400, err);
             }
 
             User.count({ state :true }, (err, count) => {
+                
+                if (err) {
+                    return handleError(res, 400, err);
+                }
+                
                 res.json({
                     ok: true,
                     count,
@@ -40,7 +43,7 @@ app.get('/user', verifyToken , (req, res) => {
 
 })
 
-app.post('/user', verifyToken, verifyAdminRole, (req, res) => {
+router.post('/user', verifyToken, verifyAdminRole, (req, res) => {
 
     const body = req.body;
 
@@ -53,10 +56,7 @@ app.post('/user', verifyToken, verifyAdminRole, (req, res) => {
 
     user.save((err, userDB) => {
         if (err) {
-            return res.status(400).json({
-                ok: false,
-                err
-            })
+            return handleError(res, 400, err);
         }
 
         res.json({
@@ -66,7 +66,7 @@ app.post('/user', verifyToken, verifyAdminRole, (req, res) => {
     });
 })
 
-app.put('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
+router.put('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
 
     const id = req.params.id;
 
@@ -75,10 +75,7 @@ app.put('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
     User.findByIdAndUpdate( id, body, { new: true, runValidators: true }, (err, userDB) => {
 
         if (err) {
-            return res.status(400).json({
-                ok: false,
-                err
-            })
+            return handleError(res, 400, err);
         }
 
         res.json({
@@ -90,7 +87,7 @@ app.put('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
     
 })
 
-app.delete('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
+router.delete('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
     
     const id = req.params.id;
 
@@ -99,10 +96,7 @@ app.delete('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
     User.findByIdAndUpdate( id, changeState, { new: true }, (err, userDB) => {
 
         if (err) {
-            return res.status(400).json({
-                ok: false,
-                err
-            })
+            return handleError(res, 400, err);
         }
 
         res.json({
@@ -136,4 +130,4 @@ app.delete('/user/:id', verifyToken, verifyAdminRole, (req, res) => {
 
 })
 
-module.exports = app;
+module.exports = router;

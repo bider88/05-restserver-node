@@ -6,21 +6,19 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.CLIENT_ID);
 
+const { handleError } = require('../utils/errors');
 const User = require('../models/user');
 
-const app = express();
+const router = express.Router();
 
-app.post('/login', (req, res) => {
+router.post('/login', (req, res) => {
 
     const body = req.body;
 
     User.findOne({ email: body.email }, (err, userDB) => {
 
         if (err) {
-            return res.status(500).json({
-                ok:false,
-                err
-            })
+            return handleError(res, 500, err);
         }
 
         if (!userDB) {
@@ -37,9 +35,7 @@ app.post('/login', (req, res) => {
             })
         }
 
-        const token = jwt.sign({
-            user: userDB
-        }, process.env.SEED, { expiresIn: process.env.EXP_TOKEN })
+        const token = createToken(userDB);
 
         res.json({
             ok: true,
@@ -51,7 +47,7 @@ app.post('/login', (req, res) => {
 
 })
 
-app.post('/google', async (req, res) => {
+router.post('/google', async (req, res) => {
 
     const token = req.body.idtoken;
 
@@ -60,42 +56,21 @@ app.post('/google', async (req, res) => {
     try {
         userGoogle = await verify( token );
     } catch(err) {
-        return res.status(403).json({
-            ok: false,
-            err: {
-                message: 'Token is not valid'
-            }
-        })
+        return handleError(res, 403, { message: 'Token is not valid' });
     }
-            // .catch( err => {
-            //     return res.status(403).json({
-            //         ok: false,
-            //         err
-            //     })
-            // });
     
     User.findOne({ email: userGoogle.email}, (err, userDB) => {
         if (err) {
-            return res.status(500).json({
-                ok:false,
-                err
-            })
+            return handleError(res, 500, err);
         }
 
         if (userDB) {
             if (!userDB.google) {
                 if (err) {
-                    return res.status(400).json({
-                        ok:false,
-                        err: {
-                            message: 'Debe usar su autenticación normal'
-                        }
-                    })
+                    return handleError(res, 400, { message: 'Debe usar autenticación normal'});
                 }
             } else {
-                const token = jwt.sign({
-                    user: userDB
-                }, process.env.SEED, { expiresIn: process.env.EXP_TOKEN })
+                const token = createToken(userDB);
 
                 return res.json({
                     ok: true,
@@ -115,17 +90,10 @@ app.post('/google', async (req, res) => {
 
             user.save( (err, userDB) => {
                 if (err) {
-                    return res.status(400).json({
-                        ok:false,
-                        err: {
-                            message: 'Debe usar su autenticación normal'
-                        }
-                    })
+                    return handleError(res, 500, err);
                 }
 
-                const token = jwt.sign({
-                    user: userDB
-                }, process.env.SEED, { expiresIn: process.env.EXP_TOKEN })
+                const token = createToken(userDB);
 
                 return res.json({
                     ok: true,
@@ -155,4 +123,10 @@ async function verify( token ) {
     }
 }
 
-module.exports = app;
+const createToken = (userDB) => {
+    return jwt.sign({
+        user: userDB
+    }, process.env.SEED, { expiresIn: process.env.EXP_TOKEN })
+}
+
+module.exports = router;
