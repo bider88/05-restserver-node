@@ -7,6 +7,8 @@ const router = express.Router();
 const { handleError } = require('../utils/errors');
 const Category = require('../models/category');
 
+const mongoose = require('mongoose');
+
 router.all('/category*', verifyToken);
 
 router.get('/category', (req, res) => {
@@ -14,7 +16,7 @@ router.get('/category', (req, res) => {
     Category.find({})
         .exec((err, categoriesDB) => {
             if (err) {
-                return handleError(res, 400, err);
+                return handleError(res, 500, err);
             }
 
             Category.count({}, (err, count) => {
@@ -34,7 +36,25 @@ router.get('/category', (req, res) => {
 })
 
 router.get('/category/:id', (req, res) => {
+
+    const { id } = req.params;
     
+    if (mongoose.Types.ObjectId.isValid(id)) {
+        Category.findById(id, (err, categoryDB) => {
+            if (err) {
+                return handleError(res, 500, err);
+            }
+
+            if (!categoryDB) {
+                return handleError(res, 400, { message: 'Categoría no encontrada'})
+            }
+
+            res.json({
+                ok:true,
+                categories: categoryDB
+            })
+        })
+    }
 })
 
 router.post('/category', (req, res) => {
@@ -65,6 +85,10 @@ router.put('/category/:id', verifyAdminRole, (req, res) => {
             return handleError(res, 500, err);
         }
 
+        if (!categoryDB) {
+            return handleError(res, 400, { message: 'Categoría no encontrada'})
+        }
+
         res.json({
             ok: true,
             category: categoryDB
@@ -72,8 +96,30 @@ router.put('/category/:id', verifyAdminRole, (req, res) => {
     })
 })
 
-router.put('/category/:id', (req, res) => {
+router.delete('/category/:id', verifyAdminRole, (req, res) => {
     
+    const { id } = req.params;
+
+    if (mongoose.Types.ObjectId.isValid(id)) {
+        Category.findByIdAndRemove( id, (err, categoryDeleted) => {
+            if (err) {
+                return handleError(res, 500, err);
+            }
+    
+            if (!categoryDeleted) {
+                return handleError(res, 400, { message: 'Categoría no encontrada'})
+            }
+    
+            res.json({
+                ok: true,
+                message: 'Categoría eliminada',
+                category: categoryDeleted
+            })
+        })
+    } else {
+        handleError(res, 400, { message: 'ID de categoría no válida'})
+    }
+
 })
 
 module.exports = router;
