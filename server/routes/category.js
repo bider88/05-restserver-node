@@ -31,9 +31,7 @@ router.get('/category', (req, res) => {
                     count,
                     categories: categoriesDB
                 })
-            })
-
-            
+            })            
         })
 })
 
@@ -56,6 +54,8 @@ router.get('/category/:id', (req, res) => {
                 categories: categoryDB
             })
         })
+    } else {
+        handleError(res, 400, { message: 'ID de categoría no válida'})
     }
 })
 
@@ -82,20 +82,25 @@ router.put('/category/:id', verifyAdminRole, (req, res) => {
     
     const { id } = req.params;
     const { name } = req.body;
-    Category.findByIdAndUpdate( id, { name }, { new: true, runValidators: true }, (err, categoryDB) => {
-        if (err) {
-            return handleError(res, 500, err);
-        }
 
-        if (!categoryDB) {
-            return handleError(res, 400, { message: 'Categoría no encontrada'})
-        }
-
-        res.json({
-            ok: true,
-            category: categoryDB
+    if (mongoose.Types.ObjectId.isValid(id)) {
+        Category.findByIdAndUpdate( id, { name }, { new: true, runValidators: true }, (err, categoryDB) => {
+            if (err) {
+                return handleError(res, 500, err);
+            }
+    
+            if (!categoryDB) {
+                return handleError(res, 400, { message: 'Categoría no encontrada'})
+            }
+    
+            res.json({
+                ok: true,
+                category: categoryDB
+            })
         })
-    })
+    } else {
+        handleError(res, 400, { message: 'ID de categoría no válida'})
+    }
 })
 
 router.delete('/category/:id', verifyAdminRole, (req, res) => {

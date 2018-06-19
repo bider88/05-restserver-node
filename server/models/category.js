@@ -6,4 +6,4 @@ const categorySchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'User'}
 })
 
-module.exports = mongoose.model('categorie', categorySchema);
+module.exports = mongoose.model('Categorie', categorySchema);
