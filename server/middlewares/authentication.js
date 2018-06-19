@@ -5,18 +5,7 @@ const verifyToken = (req, res, next) => {
 
     const token = req.get('token');
 
-    jwt.verify(token, process.env.SEED, (err, decoded) => {
-        if (err) {
-            return res.status(401).json({
-                ok: false,
-                err
-            })
-        }
-
-        req.user = decoded.user;
-
-        next();
-    })
+    verToken( req, res, next, token )
 
 }
 
@@ -36,7 +25,29 @@ const verifyAdminRole = (req, res,next) => {
     }
 }
 
+const verifyTokenImage = (req, res,next) => {
+    const { token } = req.query;
+
+    verToken( req, res, next, token )
+}
+
+function verToken( req, res, next, token ) {
+    jwt.verify(token, process.env.SEED, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({
+                ok: false,
+                err
+            })
+        }
+
+        req.user = decoded.user;
+
+        next();
+    })
+}
+
 module.exports = {
     verifyToken,
-    verifyAdminRole
+    verifyAdminRole,
+    verifyTokenImage
 }
