@@ -76,6 +76,27 @@ router.get('/product/:id', (req, res) => {
     }
 })
 
+router.get('/product/search/:key', (req, res) => {
+    
+    const { key } = req.params;
+
+    const regex = new RegExp(key, 'i')
+
+    Product.find({ name: regex })
+        .populate('user', 'name email')
+        .populate('category', 'name')
+        .exec((err, productsDB) => {
+            if (err) {
+                return handleError(res, 500, err);
+            }
+
+            res.json({
+                ok: true,
+                products: productsDB
+            })
+        })
+})
+
 router.post('/product', (req, res) => {
     const body = req.body;
 
